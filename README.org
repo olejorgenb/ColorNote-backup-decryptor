@@ -1,6 +1,4 @@
 * ColorNote backup decryptor 
-  This is a simple tool to decrypt a color note backup archive.
-
   [[https://www.colornote.com/][ColorNote]] (shookingly..) don't support any kind of export[1] and the backup format is both proprietary and encrypted using a undocumented method.
 
   This tool will decrypt your auto backup (passwd: 0000) files to json format.
@@ -18,3 +16,7 @@
 
 
 [1] https://www.colornote.com/faq-question/can-i-read-a-colornote-note-in-other-word-processing-programs/
+*** Alternative method
+    If you have root access you can get hold of the sqlite db directly: http://danyilbohdan.com/blog/colornote/ 
+
+    I haven't tried it myself, but someone suggested that you could restore the backup in an emulator if you don't have a rooted phone.
