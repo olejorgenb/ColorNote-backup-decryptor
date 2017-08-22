@@ -1,5 +1,7 @@
 * ColorNote backup decryptor 
   [[https://www.colornote.com/][ColorNote]] (shookingly..) don't support any kind of export[1] and the backup format is both proprietary and encrypted using a undocumented method.
+  
+  UPDATE: It seems to be easy to get hold of the raw sqlite database using adb: https://stackoverflow.com/questions/13006315/how-to-access-data-data-folder-in-android-device/17876731#17876731
 
   This tool will decrypt your auto backup (passwd: 0000) files to json format.
 
