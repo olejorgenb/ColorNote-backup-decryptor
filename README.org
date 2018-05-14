@@ -10,12 +10,16 @@
   Let me know if you need help getting it to work. This was thrown together for my own need and is not polished and user friendly. It's only tested on very old backup file.
 
 *** Usage
-    The script expects input on stdin. It outputs something that's almost json. A fixup script is provided that fixes the remaining weirdness.
+    The script expects input on stdin. It outputs something that's almost json. A fixup script is provided that fixes some of the remaining weirdness. 
     #+BEGIN_SRC shell-script
-    java -jar < *-AUTO.dat | fixup > notes.json
+    java -jar < the-backup-file.doc | fixup > notes.json
     # Optional
     jq --raw-output '[.created_date, .modified_date, .title, .note] | @csv' < notes.json > notes.cvs
     #+END_SRC
+    
+    If the json still have garbage, try tailing the n last lines (one note takes one line): `tail -n 100 notes.json`
+    
+    Note: the file-extension of the backup files is sometimes .dat too.
 
 
 [1] https://www.colornote.com/faq-question/can-i-read-a-colornote-note-in-other-word-processing-programs/
