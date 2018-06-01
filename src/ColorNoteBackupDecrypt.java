@@ -27,19 +27,30 @@ public class ColorNoteBackupDecrypt {
 		Security.addProvider(new BouncyCastleProvider());
 
 		ColorNoteBackupDecrypt main = new ColorNoteBackupDecrypt();
-		main.init();
-		// If 0 don't work, try with 28
-		main.decrypt(System.in, 0, System.out);
+
+		String defaultPassword = "0000";
+		String password = defaultPassword;
+		
+		if (args.length > 0) {
+			password = args[0];
+		}
+
+		// If 0 doesn't work, try with 28
+		int offset = 0;
+
+		if (args.length > 1) {
+			offset = Integer.parseInt(args[1]);
+		}
+
+		main.init(password);
+		main.decrypt(System.in, offset, System.out);
 	}
 
-	public void init() throws UnsupportedEncodingException {
+	public void init(String password) throws UnsupportedEncodingException {
 		byte[] salt = "ColorNote Fixed Salt".getBytes("UTF-8");
 		String provider = "BC";
 		String algorithm = "PBEWITHMD5AND128BITAES-CBC-OPENSSL";
 		int iterationCount = 20;
-
-		String defaultPassword = "0000";
-		String password = defaultPassword;
 
 		try {
 			this.keyFactory = SecretKeyFactory.getInstance(algorithm, provider);
@@ -73,13 +84,14 @@ public class ColorNoteBackupDecrypt {
 		int i = 0;
 		while (i < offset) {
 			rawInput.read();
+			i++;
 		}
 
 		try (CipherInputStream input = new CipherInputStream(rawInput, this.chiper)) {
 			while (true) {
-				i = input.read(buffer);
-				if (i >= 0) {
-					out.write(buffer, 0, i);
+				int bytesRead = input.read(buffer);
+				if (bytesRead >= 0) {
+					out.write(buffer, 0, bytesRead);
 				} else {
 					input.close();
 					return;

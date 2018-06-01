@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Remove magic bytes (probably some specification of record length)
+# The result is a json file with one note per line as a json object
+# All new lines in the notes are escaped - actual newlines can occur in the binary separators and these trips up perl, so replace them with something else
+tail -c +21 | tr '\n' X | perl -p -e 's/\0\0../\n/g'
+

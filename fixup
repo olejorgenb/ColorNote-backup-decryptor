@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# Remove magic bytes (no idea what they represent)
-# The result is a json file with one note per line as a json object
-tail -c +17 | perl -p -e 's/[\cb\cc\cd]./\n/g'
-

@@ -1,29 +1,58 @@
 * ColorNote backup decryptor 
-  [[https://www.colornote.com/][ColorNote]] (shookingly..) don't support any kind of export[1] and the backup format is both proprietary and encrypted using a undocumented method.
+  [[https://www.colornote.com/][ColorNote]] [[https://www.colornote.com/faq-question/can-i-read-a-colornote-note-in-other-word-processing-programs/][doesn't]] support any kind of export (!?) and the backup format is both proprietary and encrypted using an undocumented method.
   
-  UPDATE: It seems to be easy to get hold of the raw sqlite database using adb: https://stackoverflow.com/questions/13006315/how-to-access-data-data-folder-in-android-device/17876731#17876731
-
-  This tool will decrypt your auto backup (passwd: 0000) files to json format.
+  NB: If you have the app installed or have access to an android phone the alternative methods listed at the end might be simpler.
 
   I've included a prebuild jar for convenience.
-
-  Let me know if you need help getting it to work. This was thrown together for my own need and is not polished and user friendly. It's only tested on very old backup file.
+  
+  There is at least two versions of the backup format. I haven't invested in figuring out a detection mechanism so trial and error is the game :)
 
 *** Usage
-    The script expects input on stdin. It outputs something that's almost json. A fixup script is provided that fixes some of the remaining weirdness. 
+    : java -jar colornote-decrypt.jar PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
+    
+    The script reads from standard input and writes to standard output.
+
+    The decrypted output is json with some weird prefix and note separators (probably encoding the length of the file and individual notes). A small script attempts to clean the json. 
+    
+    Try both versions below. The following error message indicates that the input file uses another format version:
+    : Exception in thread "main" java.io.IOException: javax.crypto.IllegalBlockSizeException: last block incomplete in decryption
+    
+    Note: the file-extension of the backup files is sometimes .dat and sometimes .doc (might indicate the version?)
+    
+    *V1:*
     #+BEGIN_SRC shell-script
-    java -jar < the-backup-file.doc | fixup > notes.json
-    # Optional
-    jq --raw-output '[.created_date, .modified_date, .title, .note] | @csv' < notes.json > notes.cvs
+    # 0000 is the default password
+    java -jar colornote-decrypt.jar 0000 < the-backup-file.doc | fixup-v1 > notes.json
     #+END_SRC
     
-    If the json still have garbage, try tailing the n last lines (one note takes one line): `tail -n 100 notes.json`
+    *V2:*
+    #+BEGIN_SRC shell-script
+    # 0000 is the default password and 28 is a magic offset
+    java -jar colornote-decrypt.jar 0000 28 < the-backup-file.doc | fixup-v2 > notes.json
+    #+END_SRC
     
-    Note: the file-extension of the backup files is sometimes .dat too.
+    If the json still contains garbage, try tailing the n last lines (one note takes one line): ~tail -n 100 notes.json~ ([[https://github.com/olejorgenb/ColorNote-backup-decryptor/issues/1#issuecomment-389010700][Source]])
+    
+    Each fixup script is only based on a single backup file so they could be incomplete. Let me know if you have problems.
+    
+    When you have the json file the next step is up two you. 
 
-
-[1] https://www.colornote.com/faq-question/can-i-read-a-colornote-note-in-other-word-processing-programs/
-*** Alternative method
+    Use ~format-notes~ to get a quick view of the notes or the following to get a csv format:
+    
+    #+BEGIN_SRC shell-script
+    jq --raw-output '[.created_date, .modified_date, .title, .note] | @csv' < notes.json > notes.cvs
+    #+END_SRC
+*** Alternative methods
+**** Rooted phone
     If you have root access you can get hold of the sqlite db directly: http://danyilbohdan.com/blog/colornote/ 
 
     I haven't tried it myself, but someone suggested that you could restore the backup in an emulator if you don't have a rooted phone.
+**** Using android's built-in backup system to access the app-private data
+     Restore your encrypted backup onto a color note installation and do a full app backup using [[https://developer.android.com/studio/command-line/adb][adb]]: (tested on v4.0.6)
+     
+     ~adb backup -noapk com.socialnmobile.dictapps.notepad.color.note~
+     
+     [[https://stackoverflow.com/questions/18533567/how-to-extract-or-unpack-an-ab-file-android-backup-file][Unpack]] the resulting ~backup.ab~ and you'll have access to the colornote.db sqlite database.
+     
+     ([[https://stackoverflow.com/questions/13006315/how-to-access-data-data-folder-in-android-device/17876731#17876731][Source]])
+ 

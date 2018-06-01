@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+jq --raw-output    \
+ '
+  [ "----------------------------",
+    (.created_date/1000 | strftime("%F %T %Z")),
+    (.modified_date/1000 | strftime("%F %T %Z")),
+    .note
+  ] | @tsv
+ '                 \
+ | tr '\t' '\n' | sed 's|\\n|\n|g'
