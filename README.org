@@ -10,6 +10,10 @@
 *** Usage
     : java -jar colornote-decrypt.jar PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
     
+    If you use oracle's JRE (likely the case if you're on windows) you'll need to run the class file directly instead (send your thanks to the US for their silly encryption export restrictions... and to java for making it unbelivable hard to make a properly bundled program):
+
+    : java -cp lib/bcprov-jdk15on-154.jar:lib/bcpkix-jdk15on-154.jar:bin ColorNoteBackupDecrypt PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
+    
     The script reads from standard input and writes to standard output.
 
     The decrypted output is json with some weird prefix and note separators (probably encoding the length of the file and individual notes). A small script attempts to clean the json. 
