@@ -16,7 +16,7 @@
     
     : java -cp lib/bcprov-jdk15on-154.jar:lib/bcpkix-jdk15on-154.jar:bin ColorNoteBackupDecrypt PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
     
-    Windows: (note the different class path separators `: -> ;`
+    Windows: (note the different class path separators ~: -> ;~
     : java -cp lib/bcprov-jdk15on-154.jar;lib/bcpkix-jdk15on-154.jar;bin ColorNoteBackupDecrypt PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
     
     The script reads from standard input and writes to standard output.
@@ -44,7 +44,7 @@
     
     Each fixup script is only based on a single backup file so they could be incomplete. Let me know if you have problems.
     
-    When you have the json file the next step is up two you. 
+    When you have the json file the next step is up to you.
 
     Use ~format-notes~ to get a quick view of the notes or the following to get a csv format:
     
