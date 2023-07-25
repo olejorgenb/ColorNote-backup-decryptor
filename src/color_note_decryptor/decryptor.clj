@@ -107,7 +107,7 @@
       (spit (str out "/" (str/replace filename "/" "-")) text))))
 
 
-(def allowed-formats #{:json :markdown :edn})
+(def allowed-formats #{:json :markdown :edn :decrypt})
 
 
 (defmulti process (fn [{:keys [fmt target]}]
@@ -138,6 +138,13 @@
 
 (defmethod process [:save :markdown] [{:keys [target] :as opts}]
   (->markdown opts)
+  (println target))
+
+(defmethod process [:print :decrypt] [opts]
+  (-> opts decrypt println))
+
+(defmethod process [:save :decrypt] [{:keys [target] :as opts}]
+  (->> opts decrypt (spit target))
   (println target))
 
 
@@ -180,7 +187,7 @@ Basic usage (will print the decrypted json):
   decryptor mynotes.backup
 
 Available options:
-  --format    -f   - specify output format [json, edn, markdown]
+  --format    -f   - specify output format [json, edn, markdown, decrypt]
   --targret   -t   - specify the output file (or folder if format is markdown)
   --password  -p   - A password to use for decryption, defaults to \"0000\"
   --offset    -o   - Offset to use for decryption, defaults to 28 ")

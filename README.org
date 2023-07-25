@@ -8,7 +8,7 @@
   There is at least two versions of the backup format. I haven't invested in figuring out a detection mechanism so trial and error is the game :)
 
 * New Version
-We have prepared a new version of the tool, that does all the decryption, decoding and saving to JSON, EDN or Markdown a breeze. Here's the CLI interface:
+Based on the original version, we have prepared a new version of the tool, that does all the decryption, decoding and saving to JSON, EDN or Markdown a breeze. Here's the CLI interface:
 
 [[file:/img/cli.png]]
 
@@ -34,8 +34,13 @@ Exports your notes to a json file for further processing:
 This is a default option, so all you need to do is:
 
     : java -jar decryptor.jar YOUR_BACKUP_FILE
+
+*** Only decrypt
+This is the basic operation, in case our parsing doesn't work in some cases. You can pipe it to the scripts mentioned below or do your own thing with it:
+
+    : java -jar decryptor.jar YOUR_BACKUP_FILE -f decrypt
     
-* Old Version
+* Original Version
 *** Usage
 The old verision jar ca n be found in ~lib/~ and used as described.
     : java -jar colornote-decrypt.jar PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
