@@ -7,7 +7,14 @@
   
   There is at least two versions of the backup format. I haven't invested in figuring out a detection mechanism so trial and error is the game :)
 
+* New Version
+We have prepared a new version of the tool, that does all the decryption, decoding and saving to JSON, EDN or Markdown a breeze. Here's the CLI interface:
+
+[[file:/img/cli.png]]
+  
+* Old Version
 *** Usage
+The old verision jar ca n be found in ~lib/~ and used as described.
     : java -jar colornote-decrypt.jar PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
     
     If you use oracle's JRE (likely the case if you're on windows) you'll need to run the class file directly instead (send your thanks to the US for their silly encryption export restrictions... and to java for making it unbelivable hard to make a properly bundled program):
