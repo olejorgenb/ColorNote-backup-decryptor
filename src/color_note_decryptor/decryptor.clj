@@ -18,7 +18,8 @@
 
 (defn decrypt
   "Runs the original decryptor from BouncyCastleProvider"
-  [file & {:keys [offset password] :or {offset 28 password "0000"}}]
+  [{:keys [file offset password] :or {offset 28 password "0000"}}]
+  (println (format "Decrypting using password %s and offset %s..." password offset))
   (Security/addProvider (BouncyCastleProvider.))
   (let [instance (doto (ColorNoteBackupDecrypt.) (.init password))]
     (with-open [raw-input (FileInputStream. file)
@@ -38,33 +39,33 @@
 
 (defn ->edn
   "Decrypt file, fixup and return as edn."
-  [file]
-  (->> file
+  [opts]
+  (->> opts
        decrypt
        fixup))
 
 
 (defn ->edn-file
-  [file out-file]
-  (->> file
-      ->edn
-      (spit out-file)))
+  [{:keys [target] :as opts}]
+  (->> opts
+       ->edn
+       (spit target)))
 
 
 (defn ->json
   "Decrypt file, fixup and return as json string."
-  [file]
-  (->> file
+  [opts]
+  (->> opts
        ->edn
        json/encode))
 
 
 (defn ->json-file
   "Decrypt file and save as json under out-file."
-  [file out-file]
-  (->> file
+  [{:keys [target] :as opts}]
+  (->> opts
        ->json
-       (spit out-file)))
+       (spit target)))
 
 
 (defn make-front-matter
@@ -95,11 +96,11 @@
 
 (defn ->markdown
   "Decrypt file, fixup and save all notes as separate markdown files under out-folder. Creates folder if it doesn't exist."
-  [file & [out-folder]]
-  (let [notes (->edn file)
+  [{:keys [target] :as opts}]
+  (let [notes (->edn opts)
         md-notes (map note->md notes)
         cwd (fs/cwd)
-        out (str cwd "/" out-folder)]
+        out (str cwd "/" target)]
     (when-not (fs/directory? out)
       (fs/create-dir out))
     (doseq [{:keys [filename text]} md-notes]
@@ -111,36 +112,32 @@
 
 (defmulti process (fn [{:keys [fmt target]}]
                     (let [res (cond
-                                (nil? target) [:print fmt]
+                                (empty? target) [:print fmt]
                                 :else [:save fmt])]
                       (println res)
                       res) ))
 
 
-(defmethod process [:print :json] [{:keys [file]}]
-  (-> file
-      ->json
-      println))
+(defmethod process [:print :json] [opts]
+  (-> opts ->json println))
 
 
-(defmethod process [:print :edn] [{:keys [file]}]
-  (-> file
-      ->edn
-      println))
+(defmethod process [:print :edn] [opts]
+  (-> opts ->edn println))
 
 
-(defmethod process [:save :json] [{:keys [file target]}]
-  (->json-file file target)
+(defmethod process [:save :json] [{:keys [target] :as opts}]
+  (->json-file opts)
   (println target))
 
 
-(defmethod process [:save :edn] [{:keys [file target]}]
-  (->edn-file file target)
+(defmethod process [:save :edn] [{:keys [target] :as opts}]
+  (->edn-file opts)
   (println target))
 
 
-(defmethod process [:save :markdown] [{:keys [file target]}]
-  (->markdown file target)
+(defmethod process [:save :markdown] [{:keys [target] :as opts}]
+  (->markdown opts)
   (println target))
 
 
@@ -150,22 +147,31 @@
     :default :json
     :validate [#(allowed-formats %) (str "Must be one of: " (str/join ", " allowed-formats))]
     :parse-fn keyword]
-   ["-o" "--output TARGET" "Output file (for json and edn) or folder"
-    :id :target]])
+   ["-t" "--target TARGET" "Output file (for json and edn) or folder"
+    :id :target]
+   ["-p" "--password PASSWORD" "Optonal. A password to use for decryption, defaults to \"0000\""
+    :id :password
+    :default "0000"]
+   ["-o" "--offset OFFSET" "Optional. Offset to use for decryption, defaults to 28"
+    :id :offset
+    :default 28
+    :parse-fn parse-long]])
 
 
 (defn prepare-options
   [& args]
   (let [parsed (parse-opts args cli-opts)
         {:keys [arguments options]} parsed
-        {:keys [fmt target]} options
+        {:keys [fmt target offset password]} options
         prepped {:file (first arguments)
                  :fmt fmt
-                 :target target}]
+                 :target target
+                 :offset offset
+                 :password password}]
     (cond
-      (and (empty? arguments) (empty? options)) (assoc prepped :err :help)
+      (and (empty? arguments) (empty? target) (empty? fmt)) (assoc prepped :err :help)
       (empty? arguments) (assoc prepped :err "No Color Notes backup file specified")
-      (and (= fmt :markdown) (nil? target)) (assoc prepped :err "You must specify an --output folder to save markdown files to.")
+      (and (= fmt :markdown) (nil? target)) (assoc prepped :err "You must specify a --target folder to save markdown files to.")
       :else prepped)))
 
 (def help-message "Decrypts Color Notes backup into either a json, edn or a folder with markdown files (one file for each note).
@@ -174,8 +180,10 @@ Basic usage (will print the decrypted json):
   decryptor mynotes.backup
 
 Available options:
-  --format -f [json, edn, markdown] - specify output format
-  --output -o - specify the output file (or folder if format is markdown)")
+  --format    -f   - specify output format [json, edn, markdown]
+  --targret   -t   - specify the output file (or folder if format is markdown)
+  --password  -p   - A password to use for decryption, defaults to \"0000\"
+  --offset    -o   - Offset to use for decryption, defaults to 28 ")
 
 (defn help []
   (println help-message))
