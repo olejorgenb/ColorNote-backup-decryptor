@@ -1,0 +1,7 @@
+{:paths ["src"]
+ :deps {cheshire/cheshire {:mvn/version "5.11.0"}
+        org.clojure/tools.cli {:mvn/version "1.0.219"}
+        babashka/fs {:mvn/version "0.4.19"}
+        colornote-decrypt/colornote-decrypt {:local/root "lib/colornote-decrypt.jar"}}
+ :aliases {:build {:deps {io.github.clojure/tools.build {:git/tag "v0.9.4" :git/sha "76b78fe"}}
+                   :ns-default build}}}
