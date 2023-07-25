@@ -11,7 +11,30 @@
 We have prepared a new version of the tool, that does all the decryption, decoding and saving to JSON, EDN or Markdown a breeze. Here's the CLI interface:
 
 [[file:/img/cli.png]]
-  
+
+** Basic Use Cases
+*** Export to a Markdown Folder
+This will export your backed up notes into a folder, with each note being a separate Markdown file, ready to add to any proper notes program like Obsidian etc:
+
+    : java -jar decryptor.jar YOUR_BACKUP_FILE -f markdown -t output
+
+You'll find your markdown in ~output/~ directory.
+
+*** Export to JSON
+Exports your notes to a json file for further processing:
+
+    : java -jar decryptor.jar YOUR_BACKUP_FILE -f json -t notes.json
+
+*** Export to EDN
+Exports your notes to a json file for further processing:
+
+    : java -jar decryptor.jar YOUR_BACKUP_FILE -f edn -t notes.edn
+
+*** Print json (for piping or testing)
+This is a default option, so all you need to do is:
+
+    : java -jar decryptor.jar YOUR_BACKUP_FILE
+    
 * Old Version
 *** Usage
 The old verision jar ca n be found in ~lib/~ and used as described.
