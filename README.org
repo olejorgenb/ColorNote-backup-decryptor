@@ -18,6 +18,8 @@
     
     Windows: (note the different class path separators ~: -> ;~
     : java -cp lib/bcprov-jdk15on-154.jar;lib/bcpkix-jdk15on-154.jar;bin ColorNoteBackupDecrypt PASSWORD OFFSET < INPUT_FILE > OUTPUT_FILE
+
+    Note: the cleanup scripts are written for windows, but this user ran them successfully using cygwin [https://github.com/olejorgenb/ColorNote-backup-decryptor/issues/9].
     
     The script reads from standard input and writes to standard output.
 
