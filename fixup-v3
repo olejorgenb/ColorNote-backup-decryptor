@@ -7,10 +7,11 @@
 # 
 # implementation:
 # perl: remove null characters
-# grep: remove empty lines
+# sed: remove empty lines
+# perl: delete control characters between final } and newline
 # sed: replace all newline characters with comma
 # echo: add '[' to the start of file
 # sed: remove all characters before '{' at the start of each line starting from the second line
 # sed: remove the comma at the end of the file and replace it with ']'
 
-cat $1 | perl -p -e 's/\0\0../\n/g' | grep . | sed 's/$/,/g' | (/bin/echo -n \[ && cat) | sed '2,$ s/^.{/{/' | sed '$s/.$/]/' | python3 -m json.tool > $2
+cat $1 | perl -p -e 's/\0\0../\n/g' | sed '/^$/d' | perl -p -e 's/}(?:.(?!}))+$/}/g' | sed 's/$/,/g' | (/bin/echo -n \[ && cat) | sed '2,$ s/^.{/{/' | sed '$s/.$/]/' | python3 -m json.tool > $2
